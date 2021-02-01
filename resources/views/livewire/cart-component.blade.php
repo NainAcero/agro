@@ -60,14 +60,21 @@
                     <p class="summary-info"><span class="title">Subtotal</span><b class="index">${{Cart::subtotal()}}</b></p>
                     <p class="summary-info"><span class="title">Tax</span><b class="index">${{Cart::tax()}}</b></p>
                     <p class="summary-info"><span class="title">Shipping</span><b class="index">Free Shipping</b></p>
-                    <p class="summary-info total-info "><span class="title">Total</span><b class="index">${{Cart::total()}}</b></p>
-                    <input type="hidden" value="{{Cart::total()}}" id="total" />
+                    <p class="summary-info total-info "><span class="title">Total</span><b class="index">${{ $total }}</b></p>
+
                 </div>
                 <div class="checkout-info">
                     <label class="checkbox-field">
-                        <input class="frm-input " name="have-code" id="have-code" value="" type="checkbox"><span>I have promo code</span>
+                        <input class="frm-input" name="have-code" id="have-code" wire:click="$emit('have-code', 1)" type="checkbox"><span>I have promo code</span>
                     </label>
-                    <a class="btn btn-checkout" href="#" wire:click="$emit('comprobar', '' )">Check out</a>
+                    <fieldset class="wrap-input" >
+                        <br>
+                        <input type="text" id="hidden" class="form-control" style="display:none" name="code"  wire:keydown.enter="$emit('code-submit', 1)" placeholder="Code*" autofocus="">
+
+                        <small id="emailHelp" id="mensaje" style="display:none" class="form-text text-danger text-muted"><b>Código Incorrecto</b></small>
+                    </fieldset>
+
+                    <a class="btn btn-checkout" href="#">Check out</a>
                     <a class="link-to-shop" href="shop.html">Continue Shopping<i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
                 </div>
                 <div class="update-clear">
@@ -112,9 +119,8 @@
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
 
-        var hour = new Date().getHours();
-        var minutos = new Date().getMinutes();
-        var segundos = new Date().getSeconds();
+        var show = document.getElementById('have-code');
+        var hidden = document.getElementById('hidden');
 
         @this.on('triggerDelete', orderId => {
            Swal.fire({
@@ -137,15 +143,10 @@
             });
         });
 
-        @this.on('comprobar', orderId => {
-            var price = document.getElementById('total').value;
+        @this.on('have-code', data => hidden.style.display = (show.checked)? 'inline' : 'none' );
 
-            (confirm("Desea el resultado en entero?")) ? alert(parseInt(price)) : alert(parseFloat(price));
-            if(hour > 12 && hour != 12){
-                hour = hour - 12;
-            }
-            alert("Hora de Compra : " + hour + " horas con " + minutos + " minutos con " + segundos + " segundos")
-
+        @this.on('code-submit', data => {
+            @this.call('code_discount',hidden.value)
         });
 
     })
